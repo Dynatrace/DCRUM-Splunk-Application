@@ -1,0 +1,9 @@
+target/
+*.log
+.recommenders
+.metadata
+RemoteSystemsTempFiles/
+local/inputs.conf
+DCRUMSplunkApplicationInstaller-*.spl
+cas.cfg
+local.metadata
