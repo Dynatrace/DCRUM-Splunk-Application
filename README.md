@@ -1,4 +1,4 @@
-![Splunk Logo](https://github.com/Dynatrace/DCRUM-Splunk-Application/blob/images/splunk-logo.png)
+<img alt="Splunk Logo" src="https://github.com/Dynatrace/DCRUM-Splunk-Application/blob/images/splunk-logo.png" width="360">
 
 # DCRUM-Splunk-Application
 
