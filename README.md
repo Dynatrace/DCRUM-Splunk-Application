@@ -40,5 +40,5 @@ Feel free to share any problems, questions, and suggestions with your peers on t
 
 ## License
 
-Licensed under the MIT License. See the [LICENSE](https://github.com/Dynatrace/Dynatrace-Splunk/blob/master/LICENSE)
+Licensed under the BSD License. See the [LICENSE](https://github.com/Dynatrace/Dynatrace-Splunk/blob/master/LICENSE)
 file for details.
