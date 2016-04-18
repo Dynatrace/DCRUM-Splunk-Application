@@ -24,7 +24,7 @@
         </delete>
 		
 		<copy todir="${java.io.tmpdir}/DCRUMSplunkApplication">
-			<fileset dir="../DCRUM-Splunk-Application"/>
+			<fileset dir="."/>
 		</copy>
 		
         <zip destfile="${java.io.tmpdir}/DCRUMSplunkApplicationInstaller-${version}.${buildNumber}.spl"
