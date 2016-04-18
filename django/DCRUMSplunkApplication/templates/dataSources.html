@@ -1,0 +1,696 @@
+{% extends "splunkdj:base_with_app_bar.html" %}
+{% load splunkmvc %}
+{% block title %}Data sources monitoring{% endblock title %}
+{% block css %}
+    <link rel="shortcut icon" href="/static/app/DCRUMSplunkApplication/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/static/app/DCRUMSplunkApplication/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}splunkjs/css/dashboard.css" />
+	<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}{{app_name}}/custom.css" />
+    <style>
+	
+	
+		div {
+			font-size: 15px;
+			margin-left: auto ;
+			margin-right: auto ;
+		}
+		#metricButtons a.btn {
+			border: px solid grey;
+		}
+		#defaultBtn {
+			background-image: linear-gradient(to bottom, #F3CC15, #6D6C34);
+		}
+		.panel-head{
+			background: rgba(226,226,226,1);
+			background: -moz-linear-gradient(left, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 24%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+			background: -webkit-gradient(left top, right top, color-stop(0%, rgba(226,226,226,1)), color-stop(24%, rgba(219,219,219,1)), color-stop(51%, rgba(209,209,209,1)), color-stop(100%, rgba(254,254,254,1)));
+			background: -webkit-linear-gradient(left, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 24%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+			background: -o-linear-gradient(left, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 24%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+			background: -ms-linear-gradient(left, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 24%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+			background: linear-gradient(to right, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 24%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#fefefe', GradientType=1 );
+		}
+		.panel1{
+		/* IE10+ */ 
+			background-image: -ms-linear-gradient(top, #f6f8f9 0%, #E5EBEE 50%, #f5f7f9 100%);
+		/* Mozilla Firefox */ 
+			background-image: -moz-linear-gradient(top, #f6f8f9 0%, #E5EBEE 50%, #f5f7f9 100%);
+		/* Opera */ 
+			background-image: -o-linear-gradient(top, #f6f8f9 0%, #E5EBEE 50%, #f5f7f9 100%);
+		/* Webkit (Safari/Chrome 10) */ 
+			background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f6f8f9), color-stop(50, #E5EBEE), color-stop(100, #f5f7f9));
+		/* Webkit (Chrome 11+) */ 
+			background-image: -webkit-linear-gradient(top, #f6f8f9 0%, #E5EBEE 50%, #f5f7f9 100%);
+		/* W3C Markup */ 
+			background-image: linear-gradient(to bottom, #f6f8f9 0%, #E5EBEE 50%, #f5f7f9 100%);
+			margin-top:10px; 
+            margin-left:20px; 
+            margin-bottom:10px;
+            float: left;
+		}
+        td.icon {
+            text-align: center;
+        }
+        td.icon i {
+            font-size: 15px;
+            text-shadow: 1px 1px #aaa;
+        }
+        td.icon .severe {
+            color: red;
+        }
+        td.icon .elevated {
+            color: orange;
+        }
+        td.icon .high {
+            color: #006400;
+        }
+    </style>
+{% endblock css %}
+{% block content %}
+    <div class="dashboard-body container-fluid main-section-body">
+		<div style="float: right;">
+		<img src="/static/app/DCRUMSplunkApplication/about-graphic.png" style="height: 150px; position:absolute; right: 30px;" />
+		</div>
+        <div class="row" style="padding-left: 10px;">
+            <div class="dashboard-header clearfix">
+                <h2>Health Summary</h2>
+				<div class="dashboard-cell">
+				
+				<div class="panel-body">
+					<p>Choose time range:</p> 
+					{% timerange id="timerange" preset="Today" earliest_time="$et$"|token_safe latest_time="$lt$"|token_safe %}
+				</div>
+			</div>
+            </div>
+	
+        </div>
+        <div class="dashboard-row">
+		<div class="dashboard-cell" style="padding-bottom: 10px; position: relative;">
+				<div class="panel-body">
+				
+ 
+		<div id="metricButtons" class="btn-group btn-group-justified">
+				<h3>Main metric</h3>
+			 <a href="#" class="btn btn-primary" id="defaultBtn">Health Index</a>
+			<a href="#" class="btn btn-primary" >Performance</a>
+			<a href="#" class="btn btn-primary">Availability</a>
+			<a href="#" class="btn btn-primary">Operation Time</a>
+		
+		</div>
+		
+		
+    
+				</div>
+			</div>
+		
+		
+		
+		
+            <div class="dashboard-cell" style="width: 100%;">
+                <div class="dashboard-panel" >
+                    <div class="panel-head" id="panel_header">
+                        <h3>All Monitored Applications</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="table-customrow"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+		
+		<div class="dashboard-row">
+            <div class="dashboard-cell" style="width: 40%;">
+                <div class="dashboard-panel">
+                    <div class="panel-head">
+                        <h3>Tiers</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="table-onclick"></div>
+                    </div>
+                </div>
+            </div>
+			<div class="dashboard-cell"id="table-details-default" style="height: 100%; width: 60%; visibility: visible; overflow: hidden">
+				<div class="dashboard-panel" >
+					<div class="panel-head">
+                        <h3>Details</h3>
+                    </div>
+					<div class="panel-body" >
+					
+                    </div>
+                </div>
+            </div>
+			
+			<div class="dashboard-cell" id="table-details-ct" style="height: 0px; width: 0px; visibility: hidden; overflow: hidden">
+				<div class="dashboard-panel" >
+					<div class="panel-head">
+                        <h3 id="detailsHeader">Details</h3>
+                    </div>
+					<div class="panel-body" >
+						<div id="affectedUsersValue" class="panel1" ></div>
+						<div id="availableUsersValue" class="panel1"></div>
+						<div id="performance" class="panel1"></div>
+						<div id="availability" class="panel1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+			<div class="dashboard-row">
+				<div class="dashboard-cell" style="width: 100%">
+					<div class="dashboard-panel">
+						<div class="panel-head">
+							<h3 id="chartField1">Health Index</h3>
+						</div>
+						<div class="panel-body">
+							<div id="operationsChart"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="dashboard-row">
+				<div class="dashboard-cell" style="width: 100%">
+					<div class="dashboard-panel">
+						<div class="panel-head">
+							<h3 id="chartField2">Availability Chart</h3>
+						</div>
+						<div class="panel-body">
+							<div id="availabilityChart"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="dashboard-row">
+				<div class="dashboard-cell" style="width: 100%">
+					<div class="dashboard-panel">
+						<div class="panel-head">
+							<h3 id="chartField3">Operation Time Chart</h3>
+						</div>
+						<div class="panel-body">
+							<div id="operationTimeChart"></div>
+						</div>
+					</div>
+				</div>
+			</div>	
+			<div class="dashboard-row">
+				<div class="dashboard-cell" style="width: 100%">
+					<div class="dashboard-panel">
+						<div class="panel-head">
+							<h3 id="chartField4">Usage Chart</h3>
+						</div>
+						<div class="panel-body">
+							<div id="usageChart"></div>
+						</div>
+					</div>
+				</div>
+			</div>				
+    </div>
+{% endblock content%}
+{% block js %}
+    <script>
+        var deps = [
+            "splunkjs/ready!",
+            "underscore",
+            "splunkjs/mvc/searchmanager",
+            "splunkjs/mvc/tableview",
+			"splunkjs/mvc/radiogroupview",
+			"splunkjs/mvc/chartview",
+			"splunkjs/mvc/singleview"
+        ];
+        require(deps, function(mvc,_) {
+            var SearchManager = require("splunkjs/mvc/searchmanager");
+            var TableView = require("splunkjs/mvc/tableview");
+			var ChartView = require("splunkjs/mvc/chartview");
+			var SingleView = require("splunkjs/mvc/singleview");
+			var RadioGroupView = require("splunkjs/mvc/radiogroupview");
+			var currentAppName="defaultName";
+			var mainMetric="HealthIndex";
+
+            // Set up search managers
+            var search2 = new SearchManager({
+                id: "search2",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+				search: "index=dcrumsplunkapp |stats sparkline(avg(appHealthIdx)) as Trend, first(appHealthIdx) as HealthIndex, first(tierOper) as Operations, first(tierSlowOper) as SlowOperations, first(tierAffUsrApp) as AffectedUsers by bgAppl | fillnull| rangemap field=HealthIndex high=91-100 elevated=80-90.99 default=severe | rex field=bgAppl mode=sed \"s/%20/ /g\" | eval HealthIndex=round(HealthIndex,2).\"%\" | eval Operations=round(Operations,0) | eval Operations=round(Operations,0) | eval SlowOperations=round(SlowOperations,0) | eval AffectedUsers=round(AffectedUsers,0) | rename range as Status | rename bgAppl as Application | table Status, Application, Trend, HealthIndex * | sort HealthIndex"
+			});
+			var search3 = new SearchManager({
+                id: "search3",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+            
+			});
+			var search4 = new SearchManager({
+                id: "search4",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+ 
+			});
+			var search5 = new SearchManager({
+                id: "search5",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+			});
+			var search6 = new SearchManager({
+                id: "search6",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+		   });
+			var search7 = new SearchManager({
+                id: "search7",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+		   });
+			var searchAffectedUsersValue = new SearchManager({
+                id: "searchAffectedUsersValue",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+			});
+			var searchAvailableUsersValue = new SearchManager({
+                id: "searchAvailableUsersValue",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+			});
+			var searchPerformance = new SearchManager({
+                id: "searchPerformance",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+		   });
+			var searchAvailability = new SearchManager({
+                id: "searchAvailability",
+                preview: true,
+                cache: true,
+				earliest_time: "-1h@h", 
+			});
+			var mycustomrowtable1 = new TableView({
+                id: "table-onclick",
+                managerid: "search3",
+                drilldown: "cell",
+				drilldownRedirect: false,
+                el: $("#table-onclick")
+            });
+			var barchart = new ChartView({
+				id: "operationsChart",
+				managerid: "search4",
+				"charting.chart.stackMode": "stacked",
+				"charting.legend.placement": "bottom",
+				"charting.seriesColors": "[0xFE2E2E,0xACFA58,0x00FF00]",
+				type: "column",
+				el: $("#operationsChart")
+			}).render();
+			
+			var barchart2 = new ChartView({
+				id: "availabilityChart",
+				managerid: "search5",
+				"charting.chart.stackMode": "stacked",
+				"charting.legend.placement": "bottom",
+				"charting.seriesColors": "[0x377AB8,0xF2BC1B,0x58FAF4]",
+				type: "column",
+				el: $("#availabilityChart")
+			}).render();
+			var barchart3 = new ChartView({
+				id: "operationTimeChart",
+				managerid: "search6",
+				"charting.chart.stackMode": "stacked",
+				"charting.legend.placement": "bottom",
+				"charting.seriesColors": "[0xDBA901,0xF2F5A9,0x58FAF4]",
+				type: "column",
+				el: $("#operationTimeChart")
+			}).render();
+			var barchart4 = new ChartView({
+				id: "usageChart",
+				managerid: "search7",
+				"charting.chart.stackMode": "stacked",
+				"charting.legend.placement": "bottom",
+				type: "column",
+				el: $("#usageChart")
+			}).render();			
+			
+			var affectedUsersSingleValue = new SingleView({
+				id: "affectedUsersSingleValue",
+				managerid: "searchAffectedUsersValue",
+				underLabel: "Affected Users",
+				afterLabel: "users",
+				el: $("#affectedUsersValue")
+			}).render();
+			
+			var availableUsersSingleValue = new SingleView({
+				id: "availableUsersSingleValue",
+				managerid: "searchAvailableUsersValue",
+				underLabel: "Available Users",
+				afterLabel: "users",
+				el: $("#availableUsersValue")
+			}).render();
+			
+			var performanceSingleValue = new SingleView({
+				id: "performanceSingleValue",
+				managerid: "searchPerformance",
+				underLabel: "Performance",
+				afterLabel: "%",
+				el: $("#performance")
+			}).render();
+			
+			var availabilitySingleValue = new SingleView({
+				id: "availabilitySingleValue",
+				managerid: "searchAvailability",
+				underLabel: "Availability",
+				afterLabel: "%",
+				el: $("#availability")
+			}).render();
+			
+            // Create a table for a custom row expander
+            var mycustomrowtable = new TableView({
+                id: "table-customrow",
+                managerid: "search2",
+                drilldown: "row",
+				drilldownRedirect: false,
+                el: $("#table-customrow"),
+				format: {
+                    "Trend": [ // This field name is required
+                        {
+                            "type": "sparkline", // This property must be "sparkline"
+                            // Sparkline options
+                            "options": 
+                            {
+                                "type": "line",
+                                "height": "40px", 
+                                "barWidth": "5px",
+                                "colorMap": 
+                                {
+                                    "100:": "#0033CC", 
+                                    ":99": "#00FF00"
+                                }
+                            }
+                        }
+                    ]
+                }
+            });
+            // Define icons for the custom table cell
+            var ICONS = {
+                severe: "alert-circle",
+                elevated: "alert",
+                high: "check-circle"
+            };
+			
+			
+            // Use the BasicRowRenderer class to create a custom table row renderer
+            var CustomRowRenderer = TableView.BaseRowExpansionRenderer.extend({
+                canRender: function(rowData) {
+                    console.log("RowData: ", rowData); 
+                    return true;
+                },
+                render: function($container, rowData) {
+                // Print the rowData object to the console
+                console.log("RowData: ", rowData); 
+                // Display some of the rowData in the expanded row
+                $container.append("<div>" 
+                    + "<b>rowIndex</b>: " + rowData.rowIndex + "<br>" 
+                    + "<b>colspan</b>: " + rowData.colspan + "<br>" 
+                    + "<b>fields</b>: " + rowData.fields + "<br>" 
+                    + "<b>values</b>: " + rowData.values
+                    + "</div>");
+                }
+            });
+			
+			//----------------------------------------------------------------------------------------------
+			//Searches to update by Time
+			var searches = [
+				"search2",
+				"search3",
+				"search4",
+				"search5",
+				"search6",
+				"search7",
+				"searchAffectedUsersValue",
+				"searchAvailableUsersValue",
+				"searchPerformance",
+				"searchAvailability"
+			];
+			
+			
+			
+			var timerange = splunkjs.mvc.Components.getInstance("timerange");
+			
+			timerange.on("change", function() {
+				for (i = 0; i < searches.length; i++) { 
+					splunkjs.mvc.Components.getInstance(searches[i]).search.set(timerange.val());
+				}
+			});
+			//----------------------------------------------------------------------------------------------
+			
+			
+			// Use the BaseCellRenderer class to create a custom table cell renderer
+            var CustomCellRenderer = TableView.BaseCellRenderer.extend({ 
+                canRender: function(cellData) {
+                    // This method returns "true" for the "range" field
+                    return cellData.field === "Status";
+                },
+                // This render function only works when canRender returns "true"
+                render: function($td, cellData) {
+                    console.log("cellData: ", cellData);
+                    var icon = "question";
+                    if(ICONS.hasOwnProperty(cellData.value)) {
+                        icon = ICONS[cellData.value];
+                    }
+                    $td.addClass("icon").html(_.template('<i class="icon-<%-icon%> <%- range %>" title="<%- range %>"></i>', {
+                        icon: icon,
+                        range: cellData.value
+                    }));
+                }
+            });
+			
+			
+			function resetSearches(){
+					$("#table-details-ct")
+					.css("visibility", "hidden")
+					.css("height", "0px")
+					.css("width", "0px");
+				
+					$("#table-details-default")
+					.css("visibility", "visible")
+					.css("height", "100%")
+					.css("width", "60%");
+			
+			search3.settings.set("search", "");
+			search4.settings.set("search", "");
+			search5.settings.set("search", "");
+			search6.settings.set("search", "");
+			search7.settings.set("search", "");
+			}
+			
+			
+			$(".btn-group > a.btn").on("click", function(){
+			
+			resetSearches();
+			mainMetric = this.innerHTML;
+			mainMetric = mainMetric.replace(/ /g,'');
+			$('#metricButtons a.btn').css('background-image', 'linear-gradient(to bottom, #65a637, #5c9732');
+			$(this).css('background-image', 'linear-gradient(to bottom, #F3CC15, #6D6C34)');
+			 
+			 
+			 
+			switch(mainMetric){
+				case "HealthIndex":
+				search2.settings.set("search","index=dcrumsplunkapp |stats sparkline(avg(appHealthIdx)) as Trend, first(appHealthIdx) as HealthIndex, first(tierOper) as Operations, first(tierSlowOper) as SlowOperations, first(tierAffUsrApp) as AffectedUsers by bgAppl | fillnull| rangemap field=HealthIndex high=91-100 elevated=80-90.99 default=severe | rex field=bgAppl mode=sed \"s/%20/ /g\" | eval HealthIndex=round(HealthIndex,2).\"%\" | eval Operations=round(Operations,0) | eval Operations=round(Operations,0) | eval SlowOperations=round(SlowOperations,0) | eval AffectedUsers=round(AffectedUsers,0) | rename range as Status | rename bgAppl as Application | table Status, Application, Trend, HealthIndex * | sort HealthIndex");
+				break;
+				case "Performance":
+				search2.settings.set("search","index=dcrumsplunkapp |stats sparkline(avg(tierApplPerf)) as Trend, first(tierApplPerf) as Performance, first(tierOper) as Operations, first(tierSlowOper) as SlowOperations, first(tierAffUsrApp) as AffectedUsers  by bgAppl | fillnull | rangemap field=Performance high=91-100 elevated=80-90.99 default=severe | rex field=bgAppl mode=sed \"s/%20/ /g\" | eval Performance=round(Performance,2).\"%\" | eval Operations=round(Operations,0) | eval Operations=round(Operations,0) | eval SlowOperations=round(SlowOperations,0) | eval AffectedUsers=round(AffectedUsers,0) | rename range as Status | rename bgAppl as Application | table Status, Application, Trend, Performance * | sort Performance");
+				break;
+				case "Availability":
+				search2.settings.set("search","index=dcrumsplunkapp |stats sparkline(avg(tierConn)) as Trend, first(tierConn) as Availability, first(tierOper) as Operations, first(tierSlowOper) as SlowOperations, first(tierAffUsrApp) as AffectedUsers by bgAppl | fillnull | rangemap field=Availability high=98-100 elevated=95-97.99 default=severe | rex field=bgAppl mode=sed \"s/%20/ /g\" | eval Availability=round(Availability,2).\"%\"  | eval Operations=round(Operations,0) | eval Operations=round(Operations,0) | eval SlowOperations=round(SlowOperations,0) | eval AffectedUsers=round(AffectedUsers,0) | rename range as Status | rename bgAppl as Application | table Status, Application, Trend, Availability * | sort Availability");
+				break;
+				case "OperationTime":
+				search2.settings.set("search","index=dcrumsplunkapp |stats sparkline(avg(tierOperTime)) as Trend,  first(tierOperTime) as OperationTime, first(m0_tierOperTime) as OperationTimeBaseline, first(tierSlowOper) as SlowOperations, first(tierAffUsrApp) as AffectedUsers by bgAppl | fillnull | eval OperationTimeRatio=(OperationTime/OperationTimeBaseline) | rangemap field=OperationTimeRatio high=0-1.499 elevated=1.5-1.99 default=severe | rex field=bgAppl mode=sed \"s/%20/ /g\" | eval OperationTime=round(OperationTime,2).\" ms\" | eval OperationTimeBaseline=round(OperationTimeBaseline,2).\" ms\" | eval Operations=round(Operations,0) | eval Operations=round(Operations,0) | eval SlowOperations=round(SlowOperations,0) | eval AffectedUsers=round(AffectedUsers,0) | rename range as Status | rename bgAppl as Application | table Status, Application, Trend, OperationTime * | sort -OperationTime");
+				break;
+				default:
+			
+			
+			}
+			
+			//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+			});
+			
+			
+            // Create an instance of the custom row renderer,
+            // add it to the table, and render the table
+			
+			var myCellRenderer = new CustomCellRenderer(); 
+            mycustomrowtable.addCellRenderer(myCellRenderer); 
+			
+			
+            var myRowRenderer = new CustomRowRenderer(); 
+            mycustomrowtable.addRowExpansionRenderer(myRowRenderer); 
+            mycustomrowtable.render();
+			mycustomrowtable.on("click:cell", function(e){
+			
+			var appName=e.data['click.value2'];
+			
+			appName=appName.replace(/ /g,"%20");
+			currentAppName=appName;
+			search3.settings.set("search", "index=dcrumsplunkapp bgAppl="+appName+" | stats values(bgnameTier) as Tier by bgnameTierType | rex field=bgnameTierType mode=sed \"s/%20/ /g\"| rex field=Tier mode=sed \"s/%20/ /g\" | rename bgnameTierType as Type | eval length=len(Type) | sort length | table Type Tier "); // | fields Tier//+"|stats first(m0_appHealthIdx) as Health_Index, first(tierApplPerf) as Performance, first(tierConn) as Availability, first(tierOperTime) as Operation_Time, first(tierOper) as Operations, first(tierSlowOper) as Slow_Operations, first(tierAffUsrApp) as Affected_Users");
+			search4.settings.set("search", "");
+			search5.settings.set("search", "");
+			search6.settings.set("search", "");
+			search7.settings.set("search", "");
+				$("#table-details-ct")
+				.css("visibility", "hidden")
+				.css("height", "0px")
+				.css("width", "0px");
+				
+				$("#table-details-default")
+				.css("visibility", "visible")
+				.css("height", "100%")
+				.css("width", "60%");
+			});
+			mycustomrowtable1.on("click:row", function(e){
+
+			var field_value=e.data['click.value2'];
+			var column_name=e.data['click.name2'];
+			var tier_type = e.data['click.value'];
+			var field_value_spaces=field_value;
+			
+			field_value=field_value.replace(/ /g,"%20");
+			var currentAppName_spaces=currentAppName.replace(/%20/g," ");
+				if(column_name == "Tier"){					
+					
+					$("#table-details-ct")
+					.css("visibility", "visible")
+					.css("height", "100%")
+					.css("width", "60%");
+				
+					$("#table-details-default")
+					.css("visibility", "hidden")
+					.css("height", "0px")
+					.css("width", "0px");
+					
+					//logic for different tiers
+					switch(tier_type){
+						case "Client tier":
+							document.getElementById("detailsHeader").innerHTML = "Details for Client tier/"+field_value_spaces+"/"+currentAppName_spaces;
+							searchAffectedUsersValue.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats first(tierAffUsrApp) as usrApp | eval usrApp=round(usrApp,0)");
+							searchAvailableUsersValue.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats first(tierAffUsrAvail) as usrAv | eval usrAv=round(usrAv,0)");
+							searchPerformance.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats avg(tierApplPerf) as perf | eval perf=round(perf,2)");
+							searchAvailability.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats avg(tierConn) as aval | eval aval=round(aval,2)");
+							break;
+						case "Data center tier":
+							document.getElementById("detailsHeader").innerHTML = "Details for Data center tier/"+field_value_spaces+"/"+currentAppName_spaces;
+							searchAffectedUsersValue.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats first(tierAffUsrApp) as usrApp | eval usrApp=round(usrApp,0)");
+							searchAvailableUsersValue.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats first(tierAffUsrAvail) as usrAv | eval usrAv=round(usrAv,0)");
+							searchPerformance.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats avg(tierApplPerf) as perf | eval perf=round(perf,2)"); // | eval perf=round(perf,2)
+							searchAvailability.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats avg(tierConn) as aval | eval aval=round(aval,2)");
+							break;
+						case "Network tier":
+							document.getElementById("detailsHeader").innerHTML = "Details for Network tier/"+field_value_spaces+"/"+currentAppName_spaces;
+							searchAffectedUsersValue.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats first(tierAffUsrApp) as usrApp | eval usrApp=round(usrApp,0)");
+							searchAvailableUsersValue.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats first(tierAffUsrAvail) as usrAv | eval usrAv=round(usrAv,0)");
+							searchPerformance.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats avg(tierApplPerf) as perf | eval perf=round(perf,2) ");
+							searchAvailability.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\" | stats avg(tierConn) as aval | eval aval=round(aval,2)");
+							field_value_spaces="Network";
+						break;
+					
+					
+					
+					
+					}
+					switch(field_value_spaces){
+					
+						case "RUM Browser":
+						document.getElementById("chartField1").innerHTML = "Health index";
+						document.getElementById("chartField2").innerHTML ="Availability";
+						document.getElementById("chartField3").innerHTML ="Total failures";
+						document.getElementById("chartField4").innerHTML ="Usage";
+						affectedUsersSingleValue.settings.set("afterLabel", "");						
+						availableUsersSingleValue.settings.set("afterLabel", "");
+						availableUsersSingleValue.settings.set("underLabel", "All visits");
+						affectedUsersSingleValue.settings.set("underLabel", "Affected visits");
+						
+						
+						
+						search4.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierSlowOper) as SlowOperations, first(tierFastOper) as FastOperations ");
+						barchart.settings.set("charting.seriesColors","[0xFE2E2E,0xACFA58]");
+					    search5.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierConn) as Availability | eventstats avg(tierConn) as average | eval average=round(average,0)"); // over date_mday
+					    barchart2.settings.set("charting.seriesColors","[0x4b5db9]");
+						search6.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(m0_tierFailedTrans) as TotalFailures");	
+						barchart3.settings.set("charting.seriesColors","[0x000000]");
+						search7.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierServerBytes) as ServerBytes, first(tierClientBytes) as ClientBytes");
+						barchart4.settings.set("charting.seriesColors","[0xCCCC00,0x996600]");
+						 
+						break;
+						
+						
+						case "Network":
+						document.getElementById("chartField1").innerHTML ="Network performance";
+						document.getElementById("chartField2").innerHTML ="End-to-end RTT";
+						document.getElementById("chartField3").innerHTML ="Two-way loss rate";
+						document.getElementById("chartField4").innerHTML ="-";
+						affectedUsersSingleValue.settings.set("afterLabel", "users");
+						availableUsersSingleValue.settings.set("afterLabel", "users");
+						availableUsersSingleValue.settings.set("underLabel", "Available users");
+						affectedUsersSingleValue.settings.set("underLabel", "Affected users");
+						
+						search4.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(netPerf) as NetworkPerformance ");
+						barchart.settings.set("charting.seriesColors","[0x6699FF]");					    
+						search5.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierServerRtt) as ServerRTT, first(cRtt) as ClientRTT"); // over date_mday
+					    barchart2.settings.set("charting.seriesColors","[0x000066,0x9CC283]");
+						search6.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierServerLossRate) as ServerLossRate, first(tierClientLossRate) as ClientLossRate");	
+						barchart3.settings.set("charting.seriesColors","[0xFF3300,0xFF8533]");
+						search7.settings.set("search","");
+						
+						break;
+						
+						
+						case "Synthetic":
+						document.getElementById("chartField1").innerHTML = "Health index";
+						document.getElementById("chartField2").innerHTML ="Availability";
+						document.getElementById("chartField3").innerHTML ="Total failures";
+						document.getElementById("chartField4").innerHTML ="-";
+						affectedUsersSingleValue.settings.set("afterLabel", "users");
+						availableUsersSingleValue.settings.set("afterLabel", "users");
+						availableUsersSingleValue.settings.set("underLabel", "Available users");
+						affectedUsersSingleValue.settings.set("underLabel", "Affected users");
+						search4.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart avg(tierSlowOper) as SlowOperations, avg(tierFastOper) as FastOperations ");
+					    barchart.settings.set("charting.seriesColors","[0xFE2E2E,0xACFA58]");
+						search5.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierConn) as Availability | eventstats avg(tierConn) as average | eval average=round(average,0)"); // over date_mday
+					    barchart2.settings.set("charting.seriesColors","[0x4B5DB9]");
+						search6.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(m0_tierFailedTrans) as TotalFailures");	
+						barchart3.settings.set("charting.seriesColors","[0x000000]");
+						break;
+						
+						default:
+						document.getElementById("chartField1").innerHTML = "Health index";
+						document.getElementById("chartField2").innerHTML ="Availability";
+						document.getElementById("chartField3").innerHTML ="Total failures";
+						document.getElementById("chartField4").innerHTML ="Usage";
+						affectedUsersSingleValue.settings.set("afterLabel", "users");
+						availableUsersSingleValue.settings.set("afterLabel", "users");
+						availableUsersSingleValue.settings.set("underLabel", "Available users");
+						affectedUsersSingleValue.settings.set("underLabel", "Affected users");
+						search4.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierSlowOper) as SlowOperations, first(tierFastOper) as FastOperations ");
+					    barchart.settings.set("charting.seriesColors","[0xFE2E2E,0xACFA58]");
+						search5.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierConn) as Availability "); // over date_mday
+					    barchart2.settings.set("charting.seriesColors","[0x4B5DB9]");
+						search6.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierServerTime) as ServerTime, first(tierNetworkTime) as NetworkTime, first(IdleTime) as IdleTime");
+						barchart3.settings.set("charting.seriesColors","[0xDBA901,0xF2F5A9,0x58FAF4]");						
+						search7.settings.set("search", "index=dcrumsplunkapp bgAppl=\""+currentAppName+"\" bgnameTier=\""+field_value+"\"| timechart first(tierServerBytes) as ServerBytes, first(tierClientBytes) as ClientBytes");
+						barchart4.settings.set("charting.seriesColors","[0xCCCC00,0x996600]");
+					}
+					
+					
+					
+					
+				}
+				
+			});
+			
+ 
+			
+			
+        });
+    </script>
+{% endblock js %}

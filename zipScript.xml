@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="tarScript" default="zip" basedir=".">
+    <property name="version" value="1"/>
+    <property name="buildNumber" value="custom" />
+
+    <target name="setVersion">
+        <replaceregexp file="default/app.conf"
+                       match="version = (.*)"
+                       replace="version = ${version}.${buildNumber}"
+                       byline="true"/>
+        <replaceregexp file="default/app.conf"
+                       match="label = (.*)"
+                       replace="label = APM with DCRUM ${version}.${buildNumber}"
+                       byline="true"/>
+    </target>
+
+    <target name="zip" depends="setVersion">
+        <delete failonerror="false">
+            <fileset dir="." includes="**/*.spl"/>
+        </delete>
+
+        <zip destfile="${java.io.tmpdir}/DCRUMSplunkApplicationInstaller-${version}.${buildNumber}.spl"
+             basedir="../"
+             excludes="**/zipScript.xml, **/.idea/**"
+             includes="DCRUMSplunkApplication/**/*" />
+
+        <move file="${java.io.tmpdir}/DCRUMSplunkApplicationInstaller-${version}.${buildNumber}.spl" todir="." />
+    </target>
+</project>

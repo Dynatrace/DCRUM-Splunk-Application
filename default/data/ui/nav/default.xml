@@ -1,0 +1,4 @@
+<nav  color="#30a8f8">
+    <view name="redirect" default="true"/>
+	<a href="/dj/DCRUMSplunkApplication/dataSources" >Data sources</a>
+</nav>

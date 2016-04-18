@@ -1,0 +1,243 @@
+<endpoint name="data/inputs/dynatrace_dcrum_cas">
+    <header>Dynatrace DCRUM CAS Python</header>
+    <breadcrumb>
+        <parent hidecurrent="False">datainputstats</parent>
+        <name>Dynatrace DCRUM CAS Python</name>
+    </breadcrumb>
+    <elements>
+        <element name="sourceFields" type="fieldset">
+            <view name="list"/>
+            <view name="edit"/>
+            <view name="create"/>
+            <elements>
+                <element name="name" type="textfield" label="CAS Input Name">
+                    <view name="list"/>
+                    <view name="create"/>
+                    <key name="exampleText">Name of this CAS input</key>
+                </element>
+                <element name="ip" type="textfield" label="CAS IP address">
+                    <view name="list"/>
+                    <view name="create"/>
+                    <view name="edit"/>
+                    <key name="exampleText">IP address of the CAS</key>
+                </element>
+                <element name="port" type="textfield" label="CAS Port">
+                    <view name="list"/>
+                    <view name="create"/>
+                    <view name="edit"/>
+                    <key name="exampleText">TCP port of the CAS</key>
+                </element>
+                <element name="secure" type="checkbox" label="Use HTTPS?">
+                    <view name="list"/>
+                    <view name="edit"/>
+                    <view name="create"/>
+                    <key name="exampleText">Communication of over HTTPS (checked) or over HTTP (not checked)</key>
+                </element>
+                <element name="login" type="textfield" label="Login">
+                    <view name="create"/>
+                    <view name="edit"/>
+                    <key name="exampleText">User login to access CAS</key>
+                </element>
+                <element name="password" type="password" label="Password">
+                    <view name="edit"/>
+                    <view name="create"/>
+                    <key name="exampleText">User's password</key>
+                </element>
+
+                <element name="defaultReport" type="checkbox" label="Enable default report">
+                    <view name="edit"/>
+                    <view name="create"/>
+                    <key name="exampleText">Enable default report</key>
+                </element>
+
+
+            </elements>
+        </element>
+
+        <element name="customReports" type="checkbox" label="Enable custom reports"
+                 class="spl-mgr-advanced-switch">
+            <view name="edit"/>
+            <view name="create"/>
+            <onChange>
+                <key name="_action">showonly</key>
+                <key name="0">NONE</key>
+                <key name="1">ALL</key>
+                <group_set>
+                    <group name="customReportsField"/>
+                </group_set>
+            </onChange>
+            <key name="exampleText">Enable custom reports</key>
+        </element>
+        <element name="customReportsField" type="fieldset" class="spl-mgr-advanced-options">
+            <view name="list"/>
+            <view name="edit"/>
+            <view name="create"/>
+            <elements>
+                <element name="customReportsFieldFields" type="fieldset">
+                    <view name="list"/>
+                    <view name="edit"/>
+                    <view name="create"/>
+                    <key name="legend">Report names</key>
+                    <elements>
+                        <element name="customReportsList" type="textfield" label="Enter report names (separated by ;)">
+                            <view name="edit"/>
+                            <view name="list"/>
+                            <view name="create"/>
+                            <key name="exampleText">Enter report names (separated by ;)</key>
+
+                        </element>
+                    </elements>
+                </element>
+            </elements>
+
+        </element>
+
+        <element name="spl-ctrl_EnableAdvanced" type="checkbox" label="More settings" class="spl-mgr-advanced-switch">
+            <view name="edit"/>
+            <view name="create"/>
+            <onChange>
+                <key name="_action">showonly</key>
+                <key name="0">NONE</key>
+                <key name="1">ALL</key>
+                <group_set>
+                    <group name="advanced"/>
+                </group_set>
+            </onChange>
+        </element>
+        <element name="advanced" type="fieldset" class="spl-mgr-advanced-options">
+            <view name="edit"/>
+            <view name="create"/>
+            <elements>
+
+                <element name="sourcetypeFields" type="fieldset">
+                    <view name="list"/>
+                    <view name="edit"/>
+                    <view name="create"/>
+                    <elements>
+                        <element name="spl-ctrl_sourcetypeSelect" type="select" label="Set the source type">
+                            <onChange>
+                                <key name="auto">NONE</key>
+                                <key name="_action">showonly</key>
+                                <group_set>
+                                    <group name="sourcetype"/>
+                                    <group name="spl-ctrl_from_list"/>
+                                </group_set>
+                                <key name="sourcetype">sourcetype</key>
+                                <key name="spl-ctrl_from_list">spl-ctrl_from_list</key>
+                            </onChange>
+                            <options>
+                                <opt value="auto" label="Automatic"/>
+                                <opt value="sourcetype" label="Manual"/>
+                                <opt value="spl-ctrl_from_list" label="From list"/>
+                            </options>
+                            <view name="edit"/>
+                            <view name="create"/>
+                            <key name="exampleText">When this is set to automatic, Splunk classifies and
+                                assigns the sourcetype automatically, and gives unknown sourcetypes
+                                placeholder names.
+                            </key>
+                            <key name="processValueEdit">[[ e for e in ['sourcetype']
+                                if form_defaults.get(e) ][0]]
+                            </key>
+                            <key name="processValueAdd">[[ e for e in ['sourcetype']
+                                if form_defaults.get(e) ][0]]
+                            </key>
+                        </element>
+                        <element name="sourcetype" type="textfield" label="Source type">
+                            <view name="list"/>
+                            <view name="edit"/>
+                            <view name="create"/>
+                            <key name="processValueList">_('Automatic') if (value==None or value=='') else value</key>
+                            <key name="submitValueAdd">value if
+                                form_data.get('spl-ctrl_sourcetypeSelect')=='sourcetype'
+                                else (form_data.get('spl-ctrl_from_list')
+                                if form_data.get('spl-ctrl_sourcetypeSelect')=='spl-ctrl_from_list'
+                                else '')
+                            </key>
+                            <key name="submitValueEdit">value if
+                                form_data.get('spl-ctrl_sourcetypeSelect')=='sourcetype'
+                                else (form_data.get('spl-ctrl_from_list')
+                                if form_data.get('spl-ctrl_sourcetypeSelect')=='spl-ctrl_from_list'
+                                else '')
+                            </key>
+                            <key name="labelList">Source type</key>
+                        </element>
+                        <element name="spl-ctrl_from_list" type="select" label="Select source type from list">
+                            <view name="edit"/>
+                            <view name="create"/>
+                            <key name="exampleText">Splunk classifies all common data types automatically,
+                                but if you're looking for something specific, you can find more source types
+                                in the <![CDATA[<a href="../../../apps/remote">Splunk Apps apps browser</a>]]>
+                                or online at <![CDATA[<a href="http://apps.splunk.com/"
+				target="_blank">http://apps.splunk.com</a>]]>.
+                            </key>
+                            <key name="requiredIfVisible"/>
+                            <key name="dynamicOptions" type="dict">
+                                <key name="prefixOptions" type="list">
+                                    <item type="list">
+                                        <item></item>
+                                        <item>Choose...</item>
+                                    </item>
+                                </key>
+                                <key name="keyName">title</key>
+                                <key name="keyValue">title</key>
+                                <key name="splunkSource">/saved/sourcetypes</key>
+                                <key name="splunkSourceParams" type="dict">
+                                    <key name="count">-1</key>
+                                    <key name="search">'pulldown_type=true'</key>
+                                </key>
+                            </key>
+                        </element>
+                    </elements>
+                    <key name="legend">Source type</key>
+                    <key name="helpText">Tell Splunk what kind of data this is so you can group it with
+                        other data of the same type when you search. Splunk does this
+                        automatically, but you can specify what you want if Splunk gets it
+                        wrong.
+                    </key>
+                </element>
+
+
+                <element name="hostFields" type="fieldset">
+                    <key name="legend">Host</key>
+                    <view name="list"/>
+                    <view name="edit"/>
+                    <view name="create"/>
+                    <elements>
+                        <element name="host" type="textfield" label="Host field value">
+                            <view name="edit"/>
+                            <view name="create"/>
+                        </element>
+                    </elements>
+                </element>
+                <element name="indexField" type="fieldset">
+                    <key name="legend">Index</key>
+                    <key name="helpText">Set the destination index for this source.</key>
+                    <view name="list"/>
+                    <view name="edit"/>
+                    <view name="create"/>
+                    <elements>
+                        <element name="index" type="select" label="Index">
+                            <view name="list"/>
+                            <view name="edit"/>
+                            <view name="create"/>
+                            <key name="dynamicOptions" type="dict">
+                                <key name="keyName">title</key>
+                                <key name="keyValue">title</key>
+                                <key name="splunkSource">/data/indexes</key>
+                                <key name="splunkSourceParams" type="dict">
+                                    <key name="search">'isInternal=false disabled=false'</key>
+                                    <key name="count">-1</key>
+                                </key>
+                            </key>
+                        </element>
+                    </elements>
+                </element>
+            </elements>
+        </element>
+        <element name="eai:acl.app" label="App">
+            <view name="list"/>
+            <key name="processValueList">entity['eai:acl']['app'] or ""</key>
+        </element>
+    </elements>
+</endpoint>
