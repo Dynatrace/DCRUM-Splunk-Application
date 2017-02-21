@@ -4,6 +4,8 @@
 
 The Dynatrace DC RUM Splunk Application provides a seamless way of storing DC RUM data in Splunk.
 
+*Please note that version 1.x of the application works only with Splunk 6.4 or earlier. It's not compatible with the latest Splunk 6.5 release.*
+
 ## What is Dynatrace DC RUM?
 
 [Data Center Real User Monitoring (DC RUM)](http://www.dynatrace.com/en/data-center-rum/) is an effective, non-intrusive choice for monitoring business applications that are accessed by employees, partners, and customers outside the corporate enterprise or from the corporate network (intranet or extranet).
