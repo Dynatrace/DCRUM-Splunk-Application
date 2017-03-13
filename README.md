@@ -2,9 +2,9 @@
 
 # DCRUM-Splunk-Application
 
-The Dynatrace DC RUM Splunk Application provides a seamless way of storing DC RUM data in Splunk.
+This is a demo application that shows the DC RUM-Splunk integration. It presents how to read data from CAS using REST API and provides a built-in dashboard for data visualization, similar to the Application Health Status report available in CAS.
 
-*Please note that version 1.x of the application works only with Splunk 6.4 or earlier. It's not compatible with the latest Splunk 6.5 release.*
+*Current version - 1.x, works only with Splunk 6.4 or earlier. It's not compatible with the latest Splunk 6.5 release.*
 
 ## What is Dynatrace DC RUM?
 
